@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>ASISTEN AI VG</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#050505">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AI VG">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+:root{--transition:all 0.4s cubic-bezier(0.16,1,0.3,1);--font-main:'Sora',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+/* THEMES */
+body.theme-1{--bg:#050505;--sidebar-bg:#0A0A0A;--accent:#D4AF37;--accent2:#B8960C;--border:rgba(212,175,55,0.18);--glass:rgba(212,175,55,0.04);--neon:0 0 18px rgba(212,175,55,0.45);--bubble-ai:rgba(20,16,0,0.7);--text-dim:rgba(255,255,255,0.4);--orb1:rgba(212,175,55,0.12);--orb2:rgba(180,140,20,0.08);--particle:212,175,55;}
+body.theme-2{--bg:#060D14;--sidebar-bg:#08121D;--accent:#00E5CC;--accent2:#00BFA5;--border:rgba(0,229,204,0.16);--glass:rgba(0,229,204,0.04);--neon:0 0 18px rgba(0,229,204,0.4);--bubble-ai:rgba(0,15,18,0.75);--text-dim:rgba(255,255,255,0.4);--orb1:rgba(0,229,204,0.1);--orb2:rgba(0,80,120,0.12);--particle:0,229,204;}
+body.theme-3{--bg:#160F0A;--sidebar-bg:#1E1510;--accent:#C49A6C;--accent2:#A8784A;--border:rgba(196,154,108,0.18);--glass:rgba(196,154,108,0.05);--neon:0 0 18px rgba(196,154,108,0.4);--bubble-ai:rgba(26,15,8,0.75);--text-dim:rgba(255,255,255,0.4);--orb1:rgba(196,154,108,0.1);--orb2:rgba(120,80,40,0.1);--particle:196,154,108;}
+body.theme-4{--bg:#0C0A18;--sidebar-bg:#120F22;--accent:#A78BFA;--accent2:#8B6FDE;--border:rgba(167,139,250,0.18);--glass:rgba(167,139,250,0.05);--neon:0 0 18px rgba(167,139,250,0.4);--bubble-ai:rgba(12,10,30,0.75);--text-dim:rgba(255,255,255,0.4);--orb1:rgba(167,139,250,0.1);--orb2:rgba(80,50,180,0.1);--particle:167,139,250;}
+body.theme-5{--bg:#0F0708;--sidebar-bg:#180B0D;--accent:#F87171;--accent2:#E05555;--border:rgba(248,113,113,0.18);--glass:rgba(248,113,113,0.04);--neon:0 0 18px rgba(248,113,113,0.4);--bubble-ai:rgba(20,7,8,0.75);--text-dim:rgba(255,255,255,0.4);--orb1:rgba(248,113,113,0.1);--orb2:rgba(160,40,40,0.1);--particle:248,113,113;}
+body.theme-6{--bg:#080E0A;--sidebar-bg:#0D1610;--accent:#86EFAC;--accent2:#60D08E;--border:rgba(134,239,172,0.16);--glass:rgba(134,239,172,0.04);--neon:0 0 18px rgba(134,239,172,0.35);--bubble-ai:rgba(6,14,8,0.75);--text-dim:rgba(255,255,255,0.4);--orb1:rgba(134,239,172,0.09);--orb2:rgba(40,120,70,0.1);--particle:134,239,172;}
+body.theme-7{--bg:#070D1A;--sidebar-bg:#0B1428;--accent:#60C8FF;--accent2:#38A8E0;--border:rgba(96,200,255,0.16);--glass:rgba(96,200,255,0.04);--neon:0 0 18px rgba(96,200,255,0.4);--bubble-ai:rgba(6,12,28,0.75);--text-dim:rgba(255,255,255,0.4);--orb1:rgba(96,200,255,0.1);--orb2:rgba(30,80,160,0.12);--particle:96,200,255;}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-main);background:var(--bg);color:#fff;height:100dvh;display:flex;overflow:hidden;transition:background 0.5s ease;position:relative;}
+
+/* ANIMATED BACKGROUND CANVAS */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ANIMATED BG ORBS */
+.bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);animation:orbFloat 18s ease-in-out infinite;}
+.orb-1{width:55vw;height:55vw;background:var(--orb1);top:-20%;left:-15%;animation-duration:20s;}
+.orb-2{width:40vw;height:40vw;background:var(--orb2);bottom:-15%;right:-10%;animation-duration:25s;animation-delay:-8s;}
+.orb-3{width:30vw;height:30vw;background:var(--orb1);top:40%;left:55%;animation-duration:17s;animation-delay:-4s;opacity:0.5;}
+@keyframes orbFloat{
+  0%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(3%,5%) scale(1.05);}
+  66%{transform:translate(-2%,3%) scale(0.97);}
+  100%{transform:translate(0,0) scale(1);}
+}
+
+/* GRID LINES OVERLAY */
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+  background-size:60px 60px;}
+
+/* LAYOUT */
+#sidebar,#main{position:relative;z-index:1;}
+#sidebar{width:290px;min-width:290px;height:100%;background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:var(--transition);z-index:1000;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}
+#sidebar.closed{margin-left:-290px;}
+
+/* LOGO */
+.logo-box{padding:24px 20px 18px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.logo-box::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--glass) 0%,transparent 100%);pointer-events:none;}
+.logo-accent-bar{position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(to bottom,var(--accent),var(--accent2));border-radius:0 2px 2px 0;}
+.logo-title{font-family:var(--font-mono);font-size:1.05rem;letter-spacing:3px;color:var(--accent);font-weight:700;text-shadow:var(--neon);animation:glowPulse 3s infinite alternate;}
+.logo-sub{font-size:0.55rem;opacity:.4;letter-spacing:2px;margin-top:4px;font-family:var(--font-mono);}
+@keyframes glowPulse{from{opacity:.8;text-shadow:var(--neon);}to{opacity:1;text-shadow:0 0 28px var(--accent),0 0 6px var(--accent);}}
+.lang-switch{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:30px;padding:4px 5px;margin-top:12px;width:fit-content;}
+.lang-btn{font-family:var(--font-mono);font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:20px;cursor:pointer;border:none;background:transparent;color:var(--text-dim);transition:.25s;}
+.lang-btn.active{background:var(--accent);color:#000;box-shadow:var(--neon);}
+
+/* NAV */
+.nav-section{padding:0 14px;flex:1;overflow-y:auto;}
+.nav-section::-webkit-scrollbar{width:3px;}
+.nav-section::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.sec-label{font-size:0.58rem;color:var(--accent);letter-spacing:2.5px;margin:18px 0 8px 2px;font-weight:700;opacity:.7;font-family:var(--font-mono);display:flex;align-items:center;gap:6px;}
+.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border),transparent);}
+.theme-swatches{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent;}
+.swatch:hover{transform:scale(1.2);}
+.swatch.active{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.25);transform:scale(1.15);}
+.swatch[data-t="1"]{background:#D4AF37;}
+.swatch[data-t="2"]{background:linear-gradient(135deg,#00E5CC,#0077AA);}
+.swatch[data-t="3"]{background:#C49A6C;}
+.swatch[data-t="4"]{background:#A78BFA;}
+.swatch[data-t="5"]{background:#F87171;}
+.swatch[data-t="6"]{background:#86EFAC;}
+.swatch[data-t="7"]{background:#60C8FF;}
+.new-chat-btn{width:100%;padding:12px 16px;border:1px solid var(--accent);border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:10px;background:var(--glass);transition:.25s;margin-bottom:4px;}
+.new-chat-btn:hover{background:rgba(255,255,255,0.07);box-shadow:var(--neon);}
+.new-chat-btn span{font-weight:700;font-size:.8rem;color:var(--accent);font-family:var(--font-mono);}
+
+/* BYOK */
+.byok-toggle-row{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;font-size:.58rem;color:var(--accent);letter-spacing:2.5px;margin:18px 0 0 2px;font-weight:700;opacity:.7;font-family:var(--font-mono);padding:5px 4px;border-radius:6px;transition:background .2s,opacity .2s;}
+.byok-toggle-row:hover{background:var(--glass);opacity:1;}
+.byok-arrow{font-size:.65rem;transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);display:inline-block;}
+.byok-arrow.open{transform:rotate(90deg);}
+.byok-panel{display:none;background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:12px;padding:12px 10px;margin:8px 0 16px;animation:slideDown .25s ease;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.byok-group{margin-bottom:9px;}
+.byok-label-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.byok-label-row label{font-size:.63rem;color:var(--accent);font-weight:600;font-family:var(--font-mono);}
+.get-key-link{font-size:.55rem;color:var(--accent);opacity:.6;text-decoration:none;font-family:var(--font-mono);border:1px solid var(--border);padding:2px 6px;border-radius:4px;transition:.2s;white-space:nowrap;}
+.get-key-link:hover{opacity:1;border-color:var(--accent);box-shadow:var(--neon);}
+.byok-group input{width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);color:#fff;padding:7px 10px;border-radius:8px;font-size:.72rem;outline:none;transition:.2s;font-family:var(--font-mono);}
+.byok-group input:focus{border-color:var(--accent);box-shadow:var(--neon);}
+/* ADDED: quota display */
+.byok-quota{font-size:.6rem;color:var(--accent);opacity:.6;margin-top:4px;font-family:var(--font-mono);padding:3px 6px;background:var(--glass);border-radius:4px;display:none;}
+/* ADDED: openrouter model selector */
+.or-model-wrap{margin-top:6px;display:none;}
+.or-model-select{width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);color:#fff;padding:6px 8px;border-radius:8px;font-size:.68rem;outline:none;font-family:var(--font-mono);cursor:pointer;}
+.btn-byok{width:100%;padding:9px;background:var(--accent);color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:6px;transition:.2s;font-family:var(--font-mono);font-size:.72rem;letter-spacing:1px;}
+.btn-byok:hover{opacity:.85;transform:translateY(-1px);}
+
+/* HISTORY */
+.history-item{padding:11px 12px;border-radius:10px;border:1px solid var(--border);margin-bottom:6px;font-size:.8rem;cursor:pointer;transition:.2s;background:rgba(0,0,0,0.15);display:flex;align-items:center;white-space:nowrap;overflow:hidden;}
+.history-item:hover{border-color:var(--accent);background:var(--glass);}
+.history-item.active{border-left:3px solid var(--accent);background:var(--glass);}
+.history-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.signature{padding:16px 20px;border-top:1px solid var(--border);font-family:'Playfair Display',serif;font-size:.75rem;text-align:center;color:var(--accent);opacity:.6;font-style:italic;}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;background:transparent;position:relative;min-width:0;}
+.main-header{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.35);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:relative;z-index:100;}
+.header-left{display:flex;align-items:center;gap:12px;}
+.hamburger-btn{background:none;border:none;color:var(--accent);font-size:1.5rem;cursor:pointer;padding:4px 8px;border-radius:8px;transition:.2s;line-height:1;}
+.hamburger-btn:hover{background:var(--glass);}
+#chat-title{font-weight:700;color:var(--accent);text-shadow:var(--neon);font-size:.8rem;font-family:var(--font-mono);letter-spacing:1px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dot-menu-btn{background:none;border:none;color:var(--accent);font-size:1.3rem;cursor:pointer;padding:4px 8px;border-radius:8px;transition:.2s;}
+.dot-menu-btn:hover{background:var(--glass);}
+.dropdown{position:absolute;right:14px;top:54px;background:#111;border:1px solid var(--accent);border-radius:12px;width:195px;display:none;z-index:600;overflow:hidden;backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.5),var(--neon);animation:popIn .15s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(-4px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.dropdown-item{padding:12px 16px;font-size:.82rem;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s;display:flex;align-items:center;gap:8px;}
+.dropdown-item:last-child{border-bottom:none;}
+.dropdown-item:hover{background:var(--glass);}
+.dropdown-item.danger{color:#ff6b6b;}
+.dropdown-item.danger:hover{background:rgba(255,80,80,0.08);}
+
+/* CHAT WINDOW */
+#chat-window{flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;}
+#chat-window::-webkit-scrollbar{width:3px;}
+#chat-window::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.bubble{max-width:78%;padding:12px 16px;border-radius:18px;font-size:.9rem;line-height:1.65;animation:msgIn .3s ease;word-break:break-word;}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+/* FIX #2: text wrap */
+.ai-bubble{align-self:flex-start;background:var(--bubble-ai);border:1px solid var(--border);border-bottom-left-radius:4px;backdrop-filter:blur(12px);white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;position:relative;}
+.user-bubble{align-self:flex-end;background:var(--accent);color:#000;font-weight:600;border-bottom-right-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,0.3);}
+.chat-img{max-width:100%;border-radius:10px;margin-top:6px;border:1px solid var(--border);display:block;}
+.provider-badge{font-size:.58rem;color:var(--accent);opacity:.55;margin-top:7px;letter-spacing:1px;font-family:var(--font-mono);display:flex;align-items:center;gap:5px;}
+
+/* FIX #3: copy button on bubble hover */
+.bubble-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;opacity:0;transition:opacity .2s;pointer-events:none;}
+.ai-bubble:hover .bubble-actions{opacity:1;pointer-events:auto;}
+.copy-bubble-btn{background:var(--glass);border:1px solid var(--border);color:var(--accent);font-size:.65rem;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:var(--font-mono);letter-spacing:.5px;transition:.15s;backdrop-filter:blur(8px);}
+.copy-bubble-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+.copy-bubble-btn.copied{background:var(--accent);color:#000;}
+
+/* CODE BLOCKS */
+.code-block-wrap{position:relative;margin:10px 0;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.code-block-header{display:flex;justify-content:space-between;align-items:center;padding:6px 12px;background:rgba(0,0,0,0.5);border-bottom:1px solid var(--border);}
+.code-lang-label{font-size:.62rem;color:var(--accent);font-family:var(--font-mono);opacity:.7;letter-spacing:1px;}
+.copy-code-btn{font-size:.62rem;color:var(--accent);background:none;border:1px solid var(--border);padding:3px 10px;border-radius:5px;cursor:pointer;font-family:var(--font-mono);transition:.15s;}
+.copy-code-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+.copy-code-btn.copied{background:var(--accent);color:#000;}
+pre{background:rgba(0,0,0,0.6);padding:14px 14px;overflow-x:auto;margin:0;}
+pre code{font-family:var(--font-mono);font-size:.8rem;line-height:1.6;color:#e0e0e0;white-space:pre;}
+
+/* TYPING */
+.typing-bubble{align-self:flex-start;background:var(--bubble-ai);border:1px solid var(--border);border-bottom-left-radius:4px;border-radius:18px;padding:14px 18px;animation:msgIn .3s ease;}
+.typing-dots{display:flex;gap:5px;align-items:center;}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--accent);opacity:.4;animation:dotBounce 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes dotBounce{0%,80%,100%{transform:scale(.65);opacity:.35;}40%{transform:scale(1);opacity:1;}}
+
+/* PLUS MENU */
+#plus-menu{position:absolute;bottom:76px;left:12px;background:#111;border:1px solid var(--accent);border-radius:14px;display:none;padding:6px;z-index:600;box-shadow:0 8px 32px rgba(0,0,0,0.6),var(--neon);animation:popIn .15s ease;min-width:155px;backdrop-filter:blur(20px);}
+.plus-item{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;border-radius:10px;font-size:.85rem;transition:.15s;user-select:none;}
+.plus-item:hover{background:var(--glass);color:var(--accent);}
+
+/* INPUT */
+.input-wrap{padding:10px 12px 14px;background:rgba(0,0,0,0.3);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);}
+.input-island{width:100%;background:rgba(10,10,10,0.8);border:1px solid var(--border);border-radius:100px;padding:5px 6px 5px 5px;display:flex;align-items:center;gap:3px;transition:border-color .2s,box-shadow .2s;}
+.input-island:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,255,255,0.04),var(--neon);}
+.icon-btn{background:none;border:none;color:rgba(255,255,255,0.5);font-size:1.25rem;cursor:pointer;padding:8px 10px;border-radius:50%;transition:.2s;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.icon-btn:hover{color:var(--accent);background:var(--glass);}
+.icon-btn.mic-active{color:#ff6b6b !important;animation:pulse .9s infinite;}
+input#userInput{flex:1;background:none;border:none;color:#fff;outline:none;padding:8px 4px;font-size:.88rem;font-family:var(--font-main);min-width:0;}
+input#userInput::placeholder{color:var(--text-dim);}
+.send-btn{background:var(--accent);border:none;color:#000;font-weight:800;cursor:pointer;width:36px;height:36px;border-radius:50%;transition:.2s;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.send-btn:hover{opacity:.85;transform:scale(1.05);box-shadow:var(--neon);}
+
+/* MODAL */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;z-index:2000;backdrop-filter:blur(10px);}
+.modal{background:#111;border:1px solid var(--accent);padding:28px 24px;border-radius:20px;width:300px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.6),var(--neon);animation:popIn .2s ease;}
+.modal h3{color:var(--accent);margin-bottom:16px;font-size:1rem;letter-spacing:1px;font-family:var(--font-mono);}
+.modal input{width:100%;padding:12px 14px;background:rgba(0,0,0,0.5);border:1px solid var(--border);color:#fff;margin:8px 0 16px;border-radius:10px;outline:none;font-family:var(--font-main);font-size:.88rem;transition:.2s;}
+.modal input:focus{border-color:var(--accent);box-shadow:var(--neon);}
+.modal-btn{background:var(--accent);color:#000;border:none;padding:11px 20px;border-radius:10px;font-weight:700;cursor:pointer;width:100%;font-family:var(--font-mono);font-size:.8rem;letter-spacing:1px;}
+.modal-cancel{background:none;color:var(--text-dim);border:1px solid var(--border);padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;width:100%;font-family:var(--font-main);font-size:.82rem;margin-top:8px;transition:.2s;}
+.modal-cancel:hover{border-color:var(--accent);color:#fff;}
+#menu-backdrop{display:none;position:fixed;inset:0;z-index:400;}
+
+/* MISC */
+@keyframes pulse{0%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.15);}100%{opacity:.6;transform:scale(1);}}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;padding:10px 22px;border-radius:30px;font-weight:700;font-size:.78rem;z-index:3000;font-family:var(--font-mono);letter-spacing:1px;opacity:0;animation:toastAnim 2.6s ease forwards;box-shadow:var(--neon);white-space:nowrap;max-width:90vw;text-align:center;}
+@keyframes toastAnim{0%{opacity:0;transform:translateX(-50%) translateY(10px);}15%{opacity:1;transform:translateX(-50%) translateY(0);}75%{opacity:1;}100%{opacity:0;transform:translateX(-50%) translateY(-6px);}}
+</style>
+</head>
+<body class="theme-1" id="appBody">
+
+<!-- ANIMATED BACKGROUND -->
+<canvas id="bg-canvas"></canvas>
+<div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="bg-grid"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="logo-box">
+    <div class="logo-accent-bar"></div>
+    <div class="logo-title" data-i18n="app_title">ASISTEN AI VG</div>
+    <div class="logo-sub" data-i18n="app_sub">ARCHITECT PRO</div>
+    <div class="lang-switch">
+      <button class="lang-btn active" id="lang-id" onclick="setLang('id')">ID</button>
+      <button class="lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="sec-label" data-i18n="theme_label">PILIH TEMA</div>
+    <div class="theme-swatches">
+      <div class="swatch active" data-t="1" onclick="setTheme(1)" title="Obsidian Gold"></div>
+      <div class="swatch" data-t="2" onclick="setTheme(2)" title="Aurora Night ✦"></div>
+      <div class="swatch" data-t="3" onclick="setTheme(3)" title="Mocha Mousse 2025"></div>
+      <div class="swatch" data-t="4" onclick="setTheme(4)" title="Digital Lavender ✦"></div>
+      <div class="swatch" data-t="5" onclick="setTheme(5)" title="Midnight Cherry"></div>
+      <div class="swatch" data-t="6" onclick="setTheme(6)" title="Sage Mist"></div>
+      <div class="swatch" data-t="7" onclick="setTheme(7)" title="Glacier Ice"></div>
+    </div>
+    <div class="sec-label" data-i18n="engine_label">ENGINE</div>
+    <div class="new-chat-btn" onclick="newChat()">
+      <span style="font-size:1rem">⚡</span>
+      <span data-i18n="new_chat_btn">SESI BARU</span>
+    </div>
+    <div class="byok-toggle-row" onclick="toggleByok()">
+      <span data-i18n="byok_label">BRING YOUR OWN KEY</span>
+      <span class="byok-arrow" id="byok-arrow">▶</span>
+    </div>
+    <div class="byok-panel" id="byok-panel">
+      <!-- ADDED #7: Get Key links next to each provider -->
+      <div class="byok-group">
+        <div class="byok-label-row"><label>Gemini AI</label><a class="get-key-link" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Get Key ↗</a></div>
+        <input type="password" id="byok-gemini" data-ph-i18n="byok_placeholder" placeholder="Masukkan API Key...">
+        <div class="byok-quota" id="quota-gemini"></div>
+      </div>
+      <div class="byok-group">
+        <div class="byok-label-row"><label>Groq AI</label><a class="get-key-link" href="https://console.groq.com/keys" target="_blank" rel="noopener">Get Key ↗</a></div>
+        <input type="password" id="byok-groq" data-ph-i18n="byok_placeholder" placeholder="Masukkan API Key...">
+        <div class="byok-quota" id="quota-groq"></div>
+      </div>
+      <div class="byok-group">
+        <div class="byok-label-row"><label>Open Router</label><a class="get-key-link" href="https://openrouter.ai/keys" target="_blank" rel="noopener">Get Key ↗</a></div>
+        <input type="password" id="byok-openrouter" data-ph-i18n="byok_placeholder" placeholder="Masukkan API Key...">
+        <div class="byok-quota" id="quota-openrouter"></div>
+        <!-- ADDED #6: free model selector for OpenRouter -->
+        <div class="or-model-wrap" id="or-model-wrap">
+          <select class="or-model-select" id="or-model-select"><option value="">Loading free models...</option></select>
+        </div>
+      </div>
+      <div class="byok-group">
+        <div class="byok-label-row"><label>Together AI</label><a class="get-key-link" href="https://api.together.xyz/settings/api-keys" target="_blank" rel="noopener">Get Key ↗</a></div>
+        <input type="password" id="byok-together" data-ph-i18n="byok_placeholder" placeholder="Masukkan API Key...">
+      </div>
+      <div class="byok-group">
+        <div class="byok-label-row"><label>Mistral AI</label><a class="get-key-link" href="https://console.mistral.ai/api-keys/" target="_blank" rel="noopener">Get Key ↗</a></div>
+        <input type="password" id="byok-mistral" data-ph-i18n="byok_placeholder" placeholder="Masukkan API Key...">
+      </div>
+      <div class="byok-group">
+        <div class="byok-label-row"><label>Cohere AI</label><a class="get-key-link" href="https://dashboard.cohere.com/api-keys" target="_blank" rel="noopener">Get Key ↗</a></div>
+        <input type="password" id="byok-cohere" data-ph-i18n="byok_placeholder" placeholder="Masukkan API Key...">
+      </div>
+      <div class="byok-group">
+        <div class="byok-label-row"><label>Hugging Face</label><a class="get-key-link" href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">Get Key ↗</a></div>
+        <input type="password" id="byok-huggingface" data-ph-i18n="byok_placeholder" placeholder="Masukkan API Key...">
+      </div>
+      <div class="byok-group">
+        <div class="byok-label-row"><label>Google AI Studio</label><a class="get-key-link" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Get Key ↗</a></div>
+        <input type="password" id="byok-googlestudio" data-ph-i18n="byok_placeholder" placeholder="Masukkan API Key...">
+      </div>
+      <div class="byok-group">
+        <div class="byok-label-row"><label>Mancer</label><a class="get-key-link" href="https://mancer.tech" target="_blank" rel="noopener">Get Key ↗</a></div>
+        <input type="password" id="byok-mancer" data-ph-i18n="byok_placeholder" placeholder="Masukkan API Key...">
+      </div>
+      <div class="byok-group">
+        <div class="byok-label-row"><label>Deepinfra</label><a class="get-key-link" href="https://deepinfra.com/dash/api_keys" target="_blank" rel="noopener">Get Key ↗</a></div>
+        <input type="password" id="byok-deepintra" data-ph-i18n="byok_placeholder" placeholder="Masukkan API Key...">
+      </div>
+      <button class="btn-byok" onclick="saveByokKeys()" data-i18n="byok_save_btn">SIMPAN KEYS</button>
+    </div>
+    <div class="sec-label" data-i18n="history_label">RIWAYAT</div>
+    <div id="history-list"></div>
+  </div>
+  <div class="signature" data-i18n="signature">by Vivi Gioncyn</div>
+</aside>
+
+<!-- MAIN -->
+<main id="main">
+  <header class="main-header">
+    <div class="header-left">
+      <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+      <div id="chat-title" data-i18n="engine_standby">ENGINE STANDBY</div>
+    </div>
+    <button class="dot-menu-btn" onclick="toggleMenu(event)">⋮</button>
+  </header>
+  <div class="dropdown" id="dotMenu">
+    <div class="dropdown-item" onclick="pinChat()"><span>📌</span><span data-i18n="pin_chat">Sematkan</span></div>
+    <div class="dropdown-item" onclick="openRename()"><span>✎</span><span data-i18n="rename_chat">Ganti Nama</span></div>
+    <div class="dropdown-item danger" onclick="deleteSession()"><span>✕</span><span data-i18n="delete_chat">Hapus Sesi</span></div>
+  </div>
+  <div id="chat-window">
+    <div class="bubble ai-bubble" id="welcome-bubble">Selamat datang di <strong>ASISTEN AI VG</strong>. Menunggu instruksi...</div>
+  </div>
+  <div id="plus-menu">
+    <label class="plus-item" for="camIn" onclick="closePlusMenu()">📷 <span data-i18n="menu_camera">Kamera</span></label>
+    <label class="plus-item" for="galIn" onclick="closePlusMenu()">🖼️ <span data-i18n="menu_gallery">Galeri</span></label>
+    <label class="plus-item" for="fileIn" onclick="closePlusMenu()">📁 <span data-i18n="menu_file">File</span></label>
+  </div>
+  <input type="file" id="camIn" hidden accept="image/*" capture="environment" onchange="handleFile(event)">
+  <input type="file" id="galIn" hidden accept="image/*" onchange="handleFile(event)">
+  <input type="file" id="fileIn" hidden onchange="handleFile(event)">
+  <div class="input-wrap">
+    <div class="input-island">
+      <button class="icon-btn" onclick="togglePlus(event)">＋</button>
+      <input type="text" id="userInput" data-ph-i18n="input_placeholder" placeholder="Tulis perintah..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}">
+      <button class="icon-btn" id="micBtn" onclick="runMic()">🎙️</button>
+      <button class="send-btn" onclick="sendMsg()">➔</button>
+    </div>
+  </div>
+</main>
+
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3 data-i18n="rename_modal_title">Ubah Nama Sesi</h3>
+    <input type="text" id="nameInput" data-ph-i18n="rename_placeholder" placeholder="Nama baru..."
+      onkeydown="if(event.key==='Enter')saveName()">
+    <button class="modal-btn" onclick="saveName()" data-i18n="save_btn">SIMPAN</button>
+    <button class="modal-cancel" onclick="closeModal()" data-i18n="cancel_btn">Batal</button>
+  </div>
+</div>
+<div id="menu-backdrop" onclick="closeAllMenus()"></div>
+
+<script>
+// ── TRANSLATIONS ──────────────────────────────────────────
+const TR={
+  id:{app_title:'ASISTEN AI VG',app_sub:'ARCHITECT PRO',theme_label:'PILIH TEMA',engine_label:'ENGINE',new_chat_btn:'SESI BARU',byok_label:'BRING YOUR OWN KEY',byok_placeholder:'Masukkan API Key...',byok_save_btn:'SIMPAN KEYS',history_label:'RIWAYAT',input_placeholder:'Tulis perintah...',welcome_html:'Selamat datang di <strong>ASISTEN AI VG</strong>. Menunggu instruksi...',new_session_msg:'Sesi baru dimulai. AI siap.',pin_chat:'Sematkan',rename_chat:'Ganti Nama',delete_chat:'Hapus Sesi',rename_modal_title:'Ubah Nama Sesi',rename_placeholder:'Nama baru...',save_btn:'SIMPAN',cancel_btn:'Batal',byok_saved:'✓ API Keys berhasil disimpan!',mic_not_supported:'Microphone tidak didukung.',mic_error:'Mic error: ',no_key_msg:'Belum ada API Key. Buka BRING YOUR OWN KEY di sidebar.',engine_standby:'ENGINE STANDBY',new_session_title:'SESI BARU',confirm_delete:'Hapus sesi ini?',menu_camera:'Kamera',menu_gallery:'Galeri',menu_file:'File',signature:'by Vivi Gioncyn',via_label:'via',copy_lbl:'Salin',copied_lbl:'Tersalin ✓',quota_label:'Kuota',quota_check:'Cek di dashboard',copy_code:'Salin',copied_code:'Tersalin!'},
+  en:{app_title:'AI VG ASSISTANT',app_sub:'ARCHITECT PRO',theme_label:'SELECT THEME',engine_label:'ENGINE',new_chat_btn:'NEW SESSION',byok_label:'BRING YOUR OWN KEY',byok_placeholder:'Enter API Key...',byok_save_btn:'SAVE KEYS',history_label:'HISTORY',input_placeholder:'Write a command...',welcome_html:'Welcome to <strong>AI VG ASSISTANT</strong>. Awaiting instructions...',new_session_msg:'New session started. AI ready.',pin_chat:'Pin Chat',rename_chat:'Rename',delete_chat:'Delete Session',rename_modal_title:'Rename Session',rename_placeholder:'New name...',save_btn:'SAVE',cancel_btn:'Cancel',byok_saved:'✓ API Keys saved!',mic_not_supported:'Microphone not supported.',mic_error:'Mic error: ',no_key_msg:'No API Key found. Open BRING YOUR OWN KEY in sidebar.',engine_standby:'ENGINE STANDBY',new_session_title:'NEW SESSION',confirm_delete:'Delete this session?',menu_camera:'Camera',menu_gallery:'Gallery',menu_file:'File',signature:'by Vivi Gioncyn',via_label:'via',copy_lbl:'Copy',copied_lbl:'Copied ✓',quota_label:'Credits',quota_check:'Check dashboard',copy_code:'Copy',copied_code:'Copied!'}
+};
+let currentLang=localStorage.getItem('vg_lang')||'id';
+function t(k){return TR[currentLang][k]||TR.id[k]||k;}
+function applyLang(){
+  document.documentElement.lang=currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(TR[currentLang][k]!==undefined)el.textContent=TR[currentLang][k];});
+  document.querySelectorAll('[data-ph-i18n]').forEach(el=>{const k=el.getAttribute('data-ph-i18n');if(TR[currentLang][k]!==undefined)el.placeholder=TR[currentLang][k];});
+  document.getElementById('lang-id').classList.toggle('active',currentLang==='id');
+  document.getElementById('lang-en').classList.toggle('active',currentLang==='en');
+  const wb=document.getElementById('welcome-bubble');if(wb)wb.innerHTML=t('welcome_html');
+  const ct=document.getElementById('chat-title');
+  if(ct.textContent===TR.id.engine_standby||ct.textContent===TR.en.engine_standby)ct.textContent=t('engine_standby');
+}
+function setLang(l){currentLang=l;localStorage.setItem('vg_lang',l);applyLang();}
+
+// ── FIX #1: SYSTEM PROMPT — prevent translation/formalization ──
+// Injected as first message so ALL providers respect language of user
+const SYSTEM_PROMPT={
+  role:'system',
+  content:'You are a helpful AI assistant. CRITICAL RULES: 1) Always reply in the EXACT same language the user writes in. If the user writes in Indonesian (formal or informal), reply in Indonesian. If they write "aku bosan", do NOT translate to "I am bored" or formalize to "saya bosan" — treat it exactly as written. 2) Never translate, formalize, or alter the user\'s language style. 3) Match the tone: casual input gets casual reply, formal input gets formal reply. 4) For code, use markdown code blocks with language labels.'
+};
+
+// Build messages array with system prompt prepended
+// For Gemini: system prompt goes into systemInstruction, not messages array
+function buildMessages(history){return[SYSTEM_PROMPT,...history];}
+
+// ── FIX #4 & #5: UPDATED MODELS + VISION ROUTING ──────────
+// Detect if latest user message contains an image
+function hasImageInHistory(history){
+  const last=history[history.length-1];
+  return last&&Array.isArray(last.content)&&last.content.some(c=>c.type==='image_url');
+}
+function getLastImageUrl(history){
+  const last=history[history.length-1];
+  if(!last||!Array.isArray(last.content))return null;
+  const img=last.content.find(c=>c.type==='image_url');
+  return img?img.image_url.url:null;
+}
+
+let pendingImageDataUrl=null; // stores last uploaded image data URL
+
+// FIX #5: Build vision-capable message content
+function buildUserContent(txt){
+  if(pendingImageDataUrl){
+    const img=pendingImageDataUrl;pendingImageDataUrl=null;
+    return[{type:'text',text:txt},{type:'image_url',image_url:{url:img}}];
+  }
+  return txt;
+}
+
+const AI_PROVIDERS=[
+  {
+    name:'Gemini Vision',
+    vision:true,
+    getKey:()=>localStorage.getItem('BYOK_GEMINI')||localStorage.getItem('BYOK_GOOGLESTUDIO'),
+    call:async(key,history)=>{
+      // FIX #5: Use gemini-2.0-flash which supports vision
+      const isVision=hasImageInHistory(history);
+      const contents=history.map(m=>{
+        if(Array.isArray(m.content)){
+          const parts=m.content.map(c=>{
+            if(c.type==='text')return{text:c.text};
+            if(c.type==='image_url'){
+              const url=c.image_url.url;
+              const b64=url.split(',')[1];
+              const mime=url.match(/data:(.*?);/)?.[1]||'image/jpeg';
+              return{inlineData:{mimeType:mime,data:b64}};
+            }
+            return{text:''};
+          });
+          return{role:m.role==='assistant'?'model':'user',parts};
+        }
+        return{role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]};
+      });
+      const body={contents,systemInstruction:{parts:[{text:SYSTEM_PROMPT.content}]}};
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+        {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const d=await r.json();
+      if(!r.ok)throw new Error(d.error?.message||'Gemini error');
+      return d.candidates[0].content.parts[0].text;
+    }
+  },
+  {
+    name:'OpenRouter',
+    vision:true,
+    getKey:()=>localStorage.getItem('BYOK_OPENROUTER'),
+    call:async(key,history)=>{
+      const msgs=buildMessages(history);
+      // FIX #5: Use vision model if image present
+      const isVision=hasImageInHistory(history);
+      const selectedModel=document.getElementById('or-model-select')?.value;
+      const model=isVision?'openai/gpt-4o-mini':(selectedModel&&selectedModel!==''?selectedModel:'mistralai/mistral-7b-instruct:free');
+      const r=await fetch('https://openrouter.ai/api/v1/chat/completions',
+        {method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','HTTP-Referer':location.href},
+        body:JSON.stringify({model,messages:msgs})});
+      const d=await r.json();
+      if(!r.ok)throw new Error(d.error?.message||'OpenRouter error');
+      return d.choices[0].message.content;
+    }
+  },
+  {
+    name:'Groq (Llama3.3)',
+    vision:false,
+    getKey:()=>localStorage.getItem('BYOK_GROQ'),
+    // FIX #4: Updated from deprecated llama3-8b-8192
+    call:async(key,history)=>{
+      const msgs=buildMessages(history).filter(m=>typeof m.content==='string'||m.role==='system');
+      const r=await fetch('https://api.groq.com/openai/v1/chat/completions',
+        {method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
+        body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:msgs})});
+      const d=await r.json();
+      if(!r.ok)throw new Error(d.error?.message||'Groq error');
+      return d.choices[0].message.content;
+    }
+  },
+  {
+    name:'Together AI',
+    vision:false,
+    getKey:()=>localStorage.getItem('BYOK_TOGETHER'),
+    call:async(key,history)=>{
+      const msgs=buildMessages(history).filter(m=>typeof m.content==='string'||m.role==='system');
+      const r=await fetch('https://api.together.xyz/v1/chat/completions',
+        {method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
+        body:JSON.stringify({model:'meta-llama/Llama-3-70b-chat-hf',messages:msgs})});
+      const d=await r.json();
+      if(!r.ok)throw new Error(d.error?.message||'Together error');
+      return d.choices[0].message.content;
+    }
+  },
+  {
+    name:'Mistral AI',
+    vision:false,
+    getKey:()=>localStorage.getItem('BYOK_MISTRAL'),
+    call:async(key,history)=>{
+      const msgs=buildMessages(history).filter(m=>typeof m.content==='string'||m.role==='system');
+      const r=await fetch('https://api.mistral.ai/v1/chat/completions',
+        {method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
+        body:JSON.stringify({model:'mistral-small-latest',messages:msgs})});
+      const d=await r.json();
+      if(!r.ok)throw new Error(d.error?.message||'Mistral error');
+      return d.choices[0].message.content;
+    }
+  },
+  {
+    name:'Cohere AI',
+    vision:false,
+    getKey:()=>localStorage.getItem('BYOK_COHERE'),
+    // FIX #4: Updated from deprecated command-r-plus
+    call:async(key,history)=>{
+      const textHistory=history.filter(m=>typeof m.content==='string');
+      const chatHistory=textHistory.slice(0,-1).map(m=>({role:m.role==='assistant'?'CHATBOT':'USER',message:m.content}));
+      const lastMsg=textHistory[textHistory.length-1]?.content||'';
+      const r=await fetch('https://api.cohere.com/v1/chat',
+        {method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
+        body:JSON.stringify({model:'command-r-08-2024',message:lastMsg,chat_history:chatHistory,
+          preamble:SYSTEM_PROMPT.content})});
+      const d=await r.json();
+      if(!r.ok)throw new Error(d.message||'Cohere error');
+      return d.text;
+    }
+  },
+  {
+    name:'HuggingFace',
+    vision:false,
+    getKey:()=>localStorage.getItem('BYOK_HUGGINGFACE'),
+    call:async(key,history)=>{
+      const textHistory=history.filter(m=>typeof m.content==='string');
+      const prompt=[SYSTEM_PROMPT,...textHistory].map(m=>
+        `${m.role==='user'?'Human':(m.role==='system'?'System':'Assistant')}: ${m.content}`
+      ).join('\n')+'\nAssistant:';
+      const r=await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2',
+        {method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
+        body:JSON.stringify({inputs:prompt,parameters:{max_new_tokens:512,return_full_text:false}})});
+      const d=await r.json();
+      if(!r.ok||d.error)throw new Error(d.error||'HuggingFace error');
+      return Array.isArray(d)?d[0].generated_text.trim():d.generated_text;
+    }
+  }
+];
+
+async function callAI(history){
+  const isVision=hasImageInHistory(history);
+  const errors=[];
+  // FIX #5: If vision, prioritize vision-capable providers
+  const providers=isVision
+    ?[...AI_PROVIDERS.filter(p=>p.vision),...AI_PROVIDERS.filter(p=>!p.vision)]
+    :AI_PROVIDERS;
+  for(const p of providers){
+    const key=p.getKey();if(!key)continue;
+    try{const res=await p.call(key,history);return{text:res,source:p.name};}
+    catch(e){errors.push(`${p.name}: ${e.message}`);}
+  }
+  throw new Error(errors.length?errors.join('\n'):t('no_key_msg'));
+}
+
+// ── STATE ─────────────────────────────────────────────────
+let currentSessId=null,sessions=JSON.parse(localStorage.getItem('vg_sessions'))||[],conversationHistory=[],micRec=null,currentTheme=parseInt(localStorage.getItem('vg_theme')||'1');
+const byokProviders=['gemini','groq','openrouter','together','mistral','cohere','huggingface','googlestudio','mancer','deepintra'];
+
+// ── BYOK + QUOTA + FREE MODELS ────────────────────────────
+function toggleByok(){const p=document.getElementById('byok-panel'),a=document.getElementById('byok-arrow'),open=p.style.display==='block';p.style.display=open?'none':'block';a.classList.toggle('open',!open);}
+
+async function saveByokKeys(){
+  byokProviders.forEach(p=>{
+    const el=document.getElementById(`byok-${p}`);if(!el)return;
+    const v=el.value.trim();
+    v?localStorage.setItem(`BYOK_${p.toUpperCase()}`,v):localStorage.removeItem(`BYOK_${p.toUpperCase()}`);
+  });
+  showToast(t('byok_saved'));
+  // ADDED #8: Fetch OpenRouter quota + free models after save
+  const orKey=localStorage.getItem('BYOK_OPENROUTER');
+  if(orKey){fetchORQuota(orKey);fetchORFreeModels(orKey);}
+}
+
+// ADDED #8: Fetch OpenRouter usage/credits
+async function fetchORQuota(key){
+  try{
+    const r=await fetch('https://openrouter.ai/api/v1/auth/key',{headers:{Authorization:`Bearer ${key}`}});
+    const d=await r.json();
+    const quota=document.getElementById('quota-openrouter');
+    if(d&&d.data){
+      const used=d.data.usage||0;
+      const limit=d.data.limit;
+      const txt=limit?`${t('quota_label')}: $${used.toFixed(4)} / $${limit.toFixed(2)}`:`${t('quota_label')}: $${used.toFixed(4)} used`;
+      quota.textContent=txt;quota.style.display='block';
+    }
+  }catch(e){
+    const quota=document.getElementById('quota-openrouter');
+    quota.textContent=`${t('quota_label')}: ${t('quota_check')}`;quota.style.display='block';
+  }
+}
+
+// ADDED #6: Fetch free models from OpenRouter
+async function fetchORFreeModels(key){
+  const wrap=document.getElementById('or-model-wrap');
+  const sel=document.getElementById('or-model-select');
+  try{
+    const r=await fetch('https://openrouter.ai/api/v1/models',{headers:{Authorization:`Bearer ${key}`}});
+    const d=await r.json();
+    const freeModels=(d.data||[]).filter(m=>parseFloat(m.pricing?.prompt||1)===0);
+    if(freeModels.length>0){
+      sel.innerHTML=freeModels.map(m=>`<option value="${m.id}">${m.name||m.id}</option>`).join('');
+      wrap.style.display='block';
+      // Save chosen model
+      const saved=localStorage.getItem('OR_FREE_MODEL');
+      if(saved)sel.value=saved;
+      sel.onchange=()=>localStorage.setItem('OR_FREE_MODEL',sel.value);
+    }
+  }catch(e){wrap.style.display='none';}
+}
+
+function loadByokKeys(){
+  byokProviders.forEach(p=>{
+    const el=document.getElementById(`byok-${p}`);if(!el)return;
+    const s=localStorage.getItem(`BYOK_${p.toUpperCase()}`);if(s)el.value=s;
+  });
+  // Auto-load OR quota & free models if key exists
+  const orKey=localStorage.getItem('BYOK_OPENROUTER');
+  if(orKey){fetchORQuota(orKey);fetchORFreeModels(orKey);}
+}
+
+// ── THEME ─────────────────────────────────────────────────
+function setTheme(n){
+  document.getElementById('appBody').className='theme-'+n;
+  currentTheme=n;localStorage.setItem('vg_theme',n);
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('active',parseInt(s.dataset.t)===n));
+  // Update particle color on canvas
+  initCanvas();
+}
+
+// ── ANIMATED BACKGROUND CANVAS (floating particles) ───────
+let canvasAnim=null;
+function initCanvas(){
+  const canvas=document.getElementById('bg-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  if(canvasAnim)cancelAnimationFrame(canvasAnim);
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  // Get accent color from CSS var
+  const style=getComputedStyle(document.body);
+  const rgb=(style.getPropertyValue('--particle')||'212,175,55').trim();
+  const particles=Array.from({length:38},()=>({
+    x:Math.random()*canvas.width,y:Math.random()*canvas.height,
+    r:Math.random()*1.8+0.4,
+    vx:(Math.random()-.5)*0.3,vy:(Math.random()-.5)*0.3,
+    o:Math.random()*0.4+0.1
+  }));
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;
+      if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${rgb},${p.o})`;ctx.fill();
+    });
+    // Draw connecting lines between close particles
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.strokeStyle=`rgba(${rgb},${0.06*(1-dist/120)})`;
+          ctx.lineWidth=0.5;ctx.stroke();
+        }
+      }
+    }
+    canvasAnim=requestAnimationFrame(draw);
+  }
+  draw();
+}
+window.addEventListener('resize',()=>{
+  const c=document.getElementById('bg-canvas');
+  if(c){c.width=window.innerWidth;c.height=window.innerHeight;}
+  initCanvas();
+});
+
+// ── MENUS ─────────────────────────────────────────────────
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('closed');closeAllMenus();}
+function closeAllMenus(){document.getElementById('dotMenu').style.display='none';document.getElementById('plus-menu').style.display='none';document.getElementById('menu-backdrop').style.display='none';}
+function toggleMenu(e){if(e)e.stopPropagation();const m=document.getElementById('dotMenu'),open=m.style.display==='block';closeAllMenus();if(!open){m.style.display='block';document.getElementById('menu-backdrop').style.display='block';}}
+function togglePlus(e){if(e)e.stopPropagation();const p=document.getElementById('plus-menu'),open=p.style.display==='block';closeAllMenus();if(!open){p.style.display='block';document.getElementById('menu-backdrop').style.display='block';}}
+function closePlusMenu(){setTimeout(()=>closeAllMenus(),80);}
+
+// ── FILES ─────────────────────────────────────────────────
+function handleFile(e){
+  const f=e.target.files[0];if(!f)return;e.target.value='';
+  const r=new FileReader();
+  r.onload=ev=>{
+    if(f.type.startsWith('image/')){
+      pendingImageDataUrl=ev.target.result; // FIX #5: store for vision routing
+      addMessage('user',`<img src="${ev.target.result}" class="chat-img" alt="img">`);
+    } else {
+      addMessage('user',`📁 <strong>${f.name}</strong>`);
+    }
+  };
+  r.readAsDataURL(f);
+}
+
+// ── FIX #3: FORMAT AI RESPONSE — detect code blocks ───────
+function formatAIResponse(text){
+  // Replace ```lang\ncode\n``` with styled code block
+  return text.replace(/```(\w*)\n?([\s\S]*?)```/g,(match,lang,code)=>{
+    const safeCode=code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const langLabel=lang||'code';
+    const uid='cb-'+Math.random().toString(36).slice(2,8);
+    return `<div class="code-block-wrap"><div class="code-block-header"><span class="code-lang-label">${langLabel.toUpperCase()}</span><button class="copy-code-btn" onclick="copyCode('${uid}','${t('copy_code')}','${t('copied_code')}')" id="btn-${uid}">${t('copy_code')}</button></div><pre><code id="${uid}">${safeCode.trimEnd()}</code></pre></div>`;
+  });
+}
+
+function copyCode(uid,copyLbl,copiedLbl){
+  const el=document.getElementById(uid);
+  if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(()=>{
+    const btn=document.getElementById('btn-'+uid);
+    if(btn){btn.textContent=copiedLbl;btn.classList.add('copied');setTimeout(()=>{btn.textContent=copyLbl;btn.classList.remove('copied');},2000);}
+  });
+}
+
+function copyBubble(btn){
+  const bubble=btn.closest('.ai-bubble');
+  const text=bubble?bubble.innerText:'';
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent=t('copied_lbl');btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent=t('copy_lbl');btn.classList.remove('copied');},2000);
+  });
+}
+
+// ── CHAT ──────────────────────────────────────────────────
+function newChat(){
+  currentSessId=Date.now();conversationHistory=[];pendingImageDataUrl=null;
+  document.getElementById('chat-window').innerHTML=`<div class="bubble ai-bubble">${t('new_session_msg')}</div>`;
+  document.getElementById('chat-title').textContent=t('new_session_title');
+  document.getElementById('sidebar').classList.add('closed');closeAllMenus();
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('userInput'),txt=inp.value.trim();
+  if(!txt&&!pendingImageDataUrl)return;
+  if(!currentSessId)currentSessId=Date.now();
+  inp.value='';
+  const userContent=buildUserContent(txt||'[image]');
+  addMessage('user',typeof userContent==='string'?userContent:`${txt}`);
+  conversationHistory.push({role:'user',content:userContent});
+  const tid='t-'+Date.now();addTyping(tid);
+  try{
+    const{text,source}=await callAI(conversationHistory);
+    removeTyping(tid);addMessage('ai',text,source);
+    conversationHistory.push({role:'assistant',content:text});
+    saveSession(txt||'[image]');
+  }catch(e){removeTyping(tid);addMessage('ai',`⚠️ ${e.message}`);}
+}
+
+function addTyping(id){const w=document.getElementById('chat-window'),b=document.createElement('div');b.id=id;b.className='typing-bubble';b.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';w.appendChild(b);w.scrollTop=w.scrollHeight;}
+function removeTyping(id){const e=document.getElementById(id);if(e)e.remove();}
+
+function addMessage(who,raw,src){
+  const w=document.getElementById('chat-window');
+  const b=document.createElement('div');
+  b.className=`bubble ${who}-bubble`;
+  if(who==='ai'){
+    // FIX #3: format code blocks
+    b.innerHTML=formatAIResponse(raw);
+    // FIX #3: add copy button to bubble (appears on hover via CSS)
+    const actions=document.createElement('div');
+    actions.className='bubble-actions';
+    actions.innerHTML=`<button class="copy-bubble-btn" onclick="copyBubble(this)">${t('copy_lbl')}</button>`;
+    b.appendChild(actions);
+    if(src){const badge=document.createElement('div');badge.className='provider-badge';badge.textContent=`▸ ${t('via_label')} ${src}`;b.appendChild(badge);}
+  } else {
+    b.innerHTML=raw;
+  }
+  w.appendChild(b);w.scrollTop=w.scrollHeight;
+}
+
+// ── SESSIONS ──────────────────────────────────────────────
+function saveSession(msg){let s=sessions.find(x=>x.id===currentSessId);if(!s){s={id:currentSessId,title:msg.substring(0,22),messages:'',pinned:false};sessions.unshift(s);}s.messages=document.getElementById('chat-window').innerHTML;localStorage.setItem('vg_sessions',JSON.stringify(sessions));renderHistory();}
+function renderHistory(){const l=document.getElementById('history-list');l.innerHTML='';sessions.forEach(s=>{const d=document.createElement('div');d.className=`history-item${s.id===currentSessId?' active':''}`;d.innerHTML=`<span>${s.pinned?'📌 ':''}${s.title}</span>`;d.onclick=()=>loadSession(s.id);l.appendChild(d);});}
+function loadSession(id){currentSessId=id;const s=sessions.find(x=>x.id===id);document.getElementById('chat-window').innerHTML=s.messages;document.getElementById('chat-title').textContent=s.title.toUpperCase();conversationHistory=[];renderHistory();document.getElementById('sidebar').classList.add('closed');closeAllMenus();}
+function deleteSession(){if(!currentSessId)return;if(!confirm(t('confirm_delete')))return;sessions=sessions.filter(s=>s.id!==currentSessId);localStorage.setItem('vg_sessions',JSON.stringify(sessions));document.getElementById('dotMenu').style.display='none';document.getElementById('menu-backdrop').style.display='none';currentSessId=null;newChat();renderHistory();}
+function pinChat(){const s=sessions.find(x=>x.id===currentSessId);if(s)s.pinned=!s.pinned;sessions.sort((a,b)=>b.pinned-a.pinned);localStorage.setItem('vg_sessions',JSON.stringify(sessions));renderHistory();document.getElementById('dotMenu').style.display='none';document.getElementById('menu-backdrop').style.display='none';}
+function openRename(){document.getElementById('modal-overlay').style.display='flex';document.getElementById('dotMenu').style.display='none';document.getElementById('menu-backdrop').style.display='none';setTimeout(()=>document.getElementById('nameInput').focus(),100);}
+function saveName(){const v=document.getElementById('nameInput').value.trim();if(v&&currentSessId){const s=sessions.find(x=>x.id===currentSessId);if(s)s.title=v;document.getElementById('chat-title').textContent=v.toUpperCase();localStorage.setItem('vg_sessions',JSON.stringify(sessions));renderHistory();}closeModal();}
+function closeModal(){document.getElementById('modal-overlay').style.display='none';document.getElementById('nameInput').value='';}
+
+// ── MICROPHONE ────────────────────────────────────────────
+function runMic(){
+  const S=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!S){showToast(t('mic_not_supported'));return;}
+  if(micRec){micRec.abort();micRec=null;document.getElementById('micBtn').classList.remove('mic-active');return;}
+  micRec=new S();
+  micRec.lang=currentLang==='id'?'id-ID':'en-US';
+  micRec.continuous=false;micRec.interimResults=false;micRec.maxAlternatives=1;
+  micRec.onstart=()=>document.getElementById('micBtn').classList.add('mic-active');
+  micRec.onend=()=>{document.getElementById('micBtn').classList.remove('mic-active');micRec=null;};
+  micRec.onresult=e=>{document.getElementById('userInput').value=e.results[0][0].transcript;setTimeout(()=>sendMsg(),300);};
+  micRec.onerror=e=>{document.getElementById('micBtn').classList.remove('mic-active');micRec=null;if(e.error!=='aborted'&&e.error!=='no-speech')showToast(t('mic_error')+e.error);};
+  try{micRec.start();}catch(e){micRec=null;showToast(t('mic_error')+e.message);}
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg){const ex=document.querySelector('.toast');if(ex)ex.remove();const t2=document.createElement('div');t2.className='toast';t2.textContent=msg;document.body.appendChild(t2);setTimeout(()=>t2.remove(),2700);}
+
+// ── INIT ──────────────────────────────────────────────────
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+setTheme(currentTheme);
+loadByokKeys();
+applyLang();
+renderHistory();
+setTimeout(initCanvas,100);
+</script>
+</body>
+</html>
